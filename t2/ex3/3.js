@@ -10,12 +10,14 @@ function getData(form, keys) {
     return data;
 }
 
-function validate(data, validationRules, errors) {
+function validate(data, validationRules) {
+    const errors = [];
     Object.values(data).forEach((value, key) => {
         if (!validationRules[keys[key]].validate(value)) {
             errors.push(validationRules[keys[key]].message);
         }
     });
+    return errors;
 }
 //#endregion
 
@@ -25,7 +27,7 @@ function removeAllChildrens(el) {
     }
 }
 
-function listController(ul) {
+function ListController(ul) {
     function appendItemToList(data, keys) {
         const li = document.createElement("li");
         if (keys !== null) {
@@ -58,6 +60,54 @@ function listController(ul) {
     return { ul, appendItemToList, deleteItem, cleanList };
 }
 
+function TaskController() {
+
+    const divTaskList = document.getElementById("llistaTasques");
+    const liController = ListController(document.createElement("ul"));
+    const pSuccessSubmit = document.createElement("p");
+
+    divTaskList.appendChild(liController.ul);
+    divErrors.appendChild(pSuccessSubmit);
+
+    function addTasc(tasca, keys, errors) {
+
+        if (errors.length === 0) {
+            pSuccessSubmit.textContent = "Formulari enviat correctament!";
+            ulTaskController.appendItemToList(tasca, keys);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    return { addTasc };
+}
+
+function ErrorsController() {
+
+    const ulErrorController = ListController(document.createElement("ul"));
+    const divErrors = document.getElementById("errors");
+
+
+    divErrors.appendChild(ulErrorController.ul);
+
+    function addErrors(errors) {
+        errors.forEach(error => {
+            ulErrorController.appendItemToList(validationRules[keys[key]].message);
+        });
+    }
+
+    function cleanErrors() {
+        ulErrorController.cleanList();
+        removeAllChildrens(divErrors);
+        const liErrors = errors.length ? ulErrorController.getAllLi() : null;
+
+    }
+
+    return { cleanErrors, addErrors };
+}
+
 const form = document.getElementById("form-tasca");
 
 const keys = ["nom_tasca", "categoria_tasca", "data_tasca"];
@@ -88,36 +138,16 @@ const validationRules = {
 };
 
 // get taskList and  error divs
-const divLListaTascas = document.getElementById("llistaTasques");
-const divErrors = document.getElementById("errors");
 
-// create the unordered lists controller
-const ulTascaController = listController(document.createElement("ul"));
-const ulErrorController = listController(document.createElement("ul"));
-
-divLListaTascas.appendChild(ulTascaController.ul);
-divErrors.appendChild(ulErrorController.ul);
+const taskController = TaskController();
+const errorController = ErrorsController()
 
 form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const errors = [];
-    ulErrorController.cleanList();
-    removeAllChildrens(divErrors);
-
-    // get data and validate
     const data = getData(form, keys);
-    validate(data, validationRules);
 
-    const liErrors = errors.length ? ulErrorController.getAllLi() : null;
-    // ulErrorController.appendItemToList(validationRules[keys[key]].message);
+    errorController.addErrors(validate(data, validationRules));
+    task.addTasc(data, keys, errors);
 
-    // if theres no errors append success message.
-    if (liErrors === null) {
-        const pSuccessSubmit = document.createElement("p");
-        pSuccessSubmit.textContent = "Formulari enviat correctament!";
-        divErrors.appendChild(pSuccessSubmit);
-
-        ulTascaController.appendItemToList(data, keys);
-    }
 });
