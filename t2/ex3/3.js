@@ -1,117 +1,5 @@
-//#region  form functions
-function getData(form, keys) {
-    const fd = new FormData(form);
-    const values = [...fd.values()];
-    const data = keys.reduce((obj, key, i) => {
-        obj[key] = values[i];
-        return obj;
-    }, {});
-
-    return data;
-}
-
-function validate(data, validationRules) {
-    const errors = [];
-    Object.values(data).forEach((value, key) => {
-        if (!validationRules[keys[key]].validate(value)) {
-            errors.push(validationRules[keys[key]].message);
-        }
-    });
-    return errors;
-}
-//#endregion
-
-function removeAllChildrens(el) {
-    while (el.firstChild) {
-        el.removeChild(el.firstChild);
-    }
-}
-
-function ListController(ul) {
-    function appendItemToList(data, keys) {
-        const li = document.createElement("li");
-        if (keys !== null) {
-            keys.forEach(key => {
-                const text = data[key];
-                console.log(text);
-                li.textContent += " " + text;
-            });
-        } else {
-            data.forEach(text => {
-                li.textContent += " " + text;
-            });
-        }
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "delete";
-        deleteButton.addEventListener('click', () => deleteItem(li));
-
-        li.appendChild(deleteButton);
-        ul.appendChild(li);
-
-        return li;
-    }
-    function deleteItem(li) {
-        ul.removeChild(li);
-    }
-    function cleanList() {
-        removeAllChildrens(ul);
-    }
-
-    return { ul, appendItemToList, deleteItem, cleanList };
-}
-
-function TaskController() {
-
-    const divTaskList = document.getElementById("llistaTasques");
-    const liController = ListController(document.createElement("ul"));
-    const pSuccessSubmit = document.createElement("p");
-
-    divTaskList.appendChild(liController.ul);
-    divErrors.appendChild(pSuccessSubmit);
-
-    function addTasc(tasca, keys, errors) {
-
-        if (errors.length === 0) {
-            pSuccessSubmit.textContent = "Formulari enviat correctament!";
-            ulTaskController.appendItemToList(tasca, keys);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    return { addTasc };
-}
-
-function ErrorsController() {
-
-    const ulErrorController = ListController(document.createElement("ul"));
-    const divErrors = document.getElementById("errors");
-
-
-    divErrors.appendChild(ulErrorController.ul);
-
-    function addErrors(errors) {
-        errors.forEach(error => {
-            ulErrorController.appendItemToList(validationRules[keys[key]].message);
-        });
-    }
-
-    function cleanErrors() {
-        ulErrorController.cleanList();
-        removeAllChildrens(divErrors);
-        const liErrors = errors.length ? ulErrorController.getAllLi() : null;
-
-    }
-
-    return { cleanErrors, addErrors };
-}
-
 const form = document.getElementById("form-tasca");
-
 const keys = ["nom_tasca", "categoria_tasca", "data_tasca"];
-
 const validationRules = {
     nom_tasca: {
         validate: (nom) => nom && nom.trim().length >= 3 && /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/.test(nom),
@@ -137,17 +25,132 @@ const validationRules = {
     },
 };
 
-// get taskList and  error divs
+function removeAllChildrens(el) {
+    while (el.firstChild) {
+        el.removeChild(el.firstChild);
+    }
+}
+
+function ListController(ul) {
+    function appendItemToList(data, keys) {
+        const li = document.createElement("li");
+        if (keys !== null) {
+            keys.forEach((key) => {
+                const text = data[key];
+                console.log(text);
+                li.textContent += " " + text;
+            });
+        } else {
+            li.textContent += " " + data;
+        }
+
+        ul.appendChild(li);
+
+        return li;
+    }
+    function deleteItem(li) {
+        ul.removeChild(li);
+    }
+    function cleanList() {
+        removeAllChildrens(ul);
+    }
+
+    return { ul, appendItemToList, deleteItem, cleanList };
+}
+
+function TaskController() {
+    const divTaskList = document.getElementById("llistaTasques");
+    const ulTaskController = ListController(document.createElement("ul"));
+    const divSuccess = document.createElement("div");
+    const pSuccessSubmit = document.createElement("p");
+
+    divTaskList.appendChild(ulTaskController.ul);
+    divTaskList.appendChild(divSuccess);
+    divSuccess.appendChild(pSuccessSubmit);
+
+    function addTask(task, keys, errors) {
+        if (errors.length === 0) {
+            pSuccessSubmit.textContent = "Formulari enviat correctament!";
+
+            const li = ulTaskController.appendItemToList(task, keys);
+            const deleteButton = document.createElement("button");
+
+            deleteButton.textContent = "delete";
+            deleteButton.addEventListener("click", () => ulTaskController.deleteItem(li));
+
+            li.appendChild(deleteButton);
+
+            return true;
+        }
+
+        pSuccessSubmit.textContent = "";
+        return false;
+    }
+
+    return { addTask };
+}
+
+function ErrorsController() {
+    const ulErrorController = ListController(document.createElement("ul"));
+    const divErrors = document.getElementById("errors");
+
+    divErrors.appendChild(ulErrorController.ul);
+
+    function renderErrors(errors) {
+        console.log(errors);
+        errors.forEach((error) => {
+            console.log(error);
+            ulErrorController.appendItemToList(error, null);
+        });
+        return errors;
+    }
+
+    function cleanErrors() {
+        ulErrorController.cleanList();
+    }
+
+    return { cleanErrors, renderErrors };
+}
+
+function FormController(form, keys, validationRules) {
+    function getData() {
+        const fd = new FormData(form);
+        const values = [...fd.values()];
+        const data = keys.reduce((obj, key, i) => {
+            obj[key] = values[i];
+            return obj;
+        }, {});
+
+        return data;
+    }
+
+    function validate(data) {
+        const errors = [];
+        Object.values(data).forEach((value, key) => {
+            if (!validationRules[keys[key]].validate(value)) {
+                errors.push(validationRules[keys[key]].message);
+            }
+        });
+
+        return errors;
+    }
+
+    return {
+        getData,
+        validate,
+    };
+}
 
 const taskController = TaskController();
-const errorController = ErrorsController()
+const errorController = ErrorsController();
+const formController = FormController(form, keys, validationRules);
 
 form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const data = getData(form, keys);
+    errorController.cleanErrors();
 
-    errorController.addErrors(validate(data, validationRules));
-    task.addTasc(data, keys, errors);
-
+    const data = formController.getData(form, keys);
+    const errors = errorController.renderErrors(formController.validate(data));
+    taskController.addTask(data, keys, errors);
 });
