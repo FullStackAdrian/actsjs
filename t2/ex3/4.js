@@ -150,7 +150,7 @@ form.addEventListener("submit", (e) => {
 
     errorController.cleanErrors();
 
-    const data = formController.getData(form, keys);
+    const data = formController.getData();
     const errors = errorController.renderErrors(formController.validate(data));
     taskController.addTask(data, keys, errors);
 });
