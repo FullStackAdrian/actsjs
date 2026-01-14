@@ -2,35 +2,35 @@
 // Modifiquem l'exercici anterior perquè una promesa pugui fallar
 // i gestionem l'error amb .catch() (i .finally()).
 
-function transformaTextPotFallar(text, fallar = false) {
+function transformText(text) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            if (fallar) {
-                reject(new Error("Error a transformaTextPotFallar: dada invàlida"));
-            } else {
+            try {
                 resolve(text.trim().toLowerCase());
+            } catch (error) {
+                reject(new Error("Type Error: can not trim type  " + typeof text));
             }
         }, 400);
     });
 }
 
-function afegeixInfo(text) {
+function addInfo(text) {
     return new Promise((resolve) => {
         setTimeout(() => {
-            resolve(`${text} -> informació afegida`);
+            resolve(text + " this is added info");
         }, 300);
     });
 }
 
 // Prova amb fallida i gestió d'error
-transformaTextPotFallar("  TEST ERROR  ", true)
-    .then((t) => afegeixInfo(t))
+transformText(1)
+    .then((t) => addInfo(t))
     .then((final) => {
-        console.log("[03-catch-finally] resultat final:", final);
+        console.log("final result:", final);
     })
     .catch((err) => {
-        console.error("[03-catch-finally] S'ha produït un error clar per consola:", err.message);
+        console.error("Excepted error: ", err.message);
     })
     .finally(() => {
-        console.log("[03-catch-finally] Execució finalitzada (finally).");
+        console.log("This is finally");
     });
