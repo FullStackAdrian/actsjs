@@ -3,84 +3,48 @@
 // Promise.all, Promise.race, Promise.any, Promise.allSettled
 // També mostrem què passa quan una falla.
 
-function promesaAmbTemps(nom, temps, fallar = false) {
+function timingPromise(name, waitingTime) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            if (fallar) {
-                reject(new Error(`${nom} ha fallat`));
-            } else {
-                resolve(`${nom} resolta en ${temps}ms`);
+            try {
+                resolve(name.trim() + " resolved in " + waitingTime + " ms");
+            } catch (error) {
+                reject(new Error("Type Error: can not trim type  " + typeof text));
             }
-        }, temps);
+        }, waitingTime);
     });
 }
 
-const p1 = promesaAmbTemps("p1", 300);
-const p2 = promesaAmbTemps("p2", 600);
-const p3 = promesaAmbTemps("p3", 100);
 
-// 1) Promise.all — falla si alguna promesa falla; retorna array de resultats si totes ok
+// for make it failure enter type number not char or string
+const p1 = timingPromise("p1", 300);
+const p2 = timingPromise(2, 600);
+const p3 = timingPromise("p3", 100);
+
 Promise.all([p1, p2, p3])
     .then((results) => {
-        console.log("[05-parallel] Promise.all resultats:", results);
+        console.log("Promise all resolves: ", results);
     })
     .catch((err) => {
-        console.error("[05-parallel] Promise.all error:", err.message);
+        console.error("Promise all reject: ", err.message);
     });
 
-// 2) Promise.race — retorna el primer que es resolgui o rellanciï (resolució o rebuig)
 Promise.race([p1, p2, p3])
     .then((first) => {
-        console.log("[05-parallel] Promise.race primer resultat:", first);
+        console.log("Promise race resolve: ", first);
     })
     .catch((err) => {
-        console.error("[05-parallel] Promise.race error:", err.message);
+        console.error("Promise race reject: ", err.message);
     });
 
-// 3) Promise.any — retorna la primera promesa que s'acompleixi; falla si totes fallen
 Promise.any([p1, p2, p3])
     .then((anyResult) => {
-        console.log("[05-parallel] Promise.any resultat:", anyResult);
+        console.log("Promise any resolve: ", anyResult);
     })
     .catch((err) => {
-        // err és un AggregateError si totes fallen
-        console.error("[05-parallel] Promise.any error (totes han fallat):", err);
+        console.error("Promise any reject: ", err);
     });
 
-// 4) Promise.allSettled — retorna l'estat de totes les promeses (fulfilled/rejected)
 Promise.allSettled([p1, p2, p3]).then((states) => {
-    console.log("[05-parallel] Promise.allSettled estats:", states);
-});
-
-// --------- Ara fem una prova on una promesa falla per analitzar els casos ----------
-const p1f = promesaAmbTemps("p1", 300);
-const p2f = promesaAmbTemps("p2", 600, true); // p2 fallarà
-const p3f = promesaAmbTemps("p3", 100);
-
-Promise.all([p1f, p2f, p3f])
-    .then((results) => {
-        console.log("[05-parallel] (fallida) Promise.all resultats:", results);
-    })
-    .catch((err) => {
-        console.error("[05-parallel] (fallida) Promise.all error:", err.message);
-    });
-
-Promise.race([p1f, p2f, p3f])
-    .then((first) => {
-        console.log("[05-parallel] (fallida) Promise.race primer resultat:", first);
-    })
-    .catch((err) => {
-        console.error("[05-parallel] (fallida) Promise.race error:", err.message);
-    });
-
-Promise.any([p1f, p2f, p3f])
-    .then((anyResult) => {
-        console.log("[05-parallel] (fallida) Promise.any resultat:", anyResult);
-    })
-    .catch((err) => {
-        console.error("[05-parallel] (fallida) Promise.any error (totes han fallat):", err);
-    });
-
-Promise.allSettled([p1f, p2f, p3f]).then((states) => {
-    console.log("[05-parallel] (fallida) Promise.allSettled estats:", states);
+    console.log("Promise allSettled states: ", states);
 });
