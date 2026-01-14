@@ -1,49 +1,42 @@
-// Exercici 6 – Flux complet amb async / await
-// - crea una funció `main` que:
-//   1. esperi una promesa inicial
-//   2. cridi dues funcions asíncrones
-//   3. mostri tots els resultats per consola
-// L'objectiu és entendre l'ordre d'execució i el retorn de valors.
-
-function promesaInicial() {
+function initialPromise() {
     return new Promise((resolve) => {
-        setTimeout(() => resolve("inicial completada"), 400);
+        setTimeout(() => resolve("initial completed"), 400);
     });
 }
 
-function feinaA() {
+function taskA() {
     return new Promise((resolve) => {
-        setTimeout(() => resolve("resultat A"), 300);
+        setTimeout(() => resolve("result A"), 300);
     });
 }
 
-function feinaB() {
+function taskB() {
     return new Promise((resolve) => {
-        setTimeout(() => resolve("resultat B"), 200);
+        setTimeout(() => resolve("result B"), 200);
     });
 }
 
 async function main() {
     try {
-        console.log("[06-main] Inici main()");
-        const inicial = await promesaInicial();
-        console.log("[06-main] promesaInicial ->", inicial);
+        console.log("Inici main()");
+        const initial = await initialPromise();
+        console.log("initialPromise ->", initial);
 
-        // Pots cridar feinaA i feinaB en paral·lel o seqüencial:
-        // Seqüencial (espera A abans de B):
-        const a = await feinaA();
-        const b = await feinaB();
-        console.log("[06-main] Seqüencial: A, B ->", a, ",", b);
+        // Call taskA and taskB sequentially or in parallel:
+        // Sequential (wait for A before B):
+        const a = await taskA();
+        const b = await taskB();
+        console.log("Sequential: A, B ->", a, ",", b);
 
-        // Paral·lel (iniciar ambdues i await Promise.all):
-        const [ap, bp] = await Promise.all([feinaA(), feinaB()]);
-        console.log("[06-main] Paral·lel amb Promise.all ->", ap, ",", bp);
+        // Parallel (start both and wait Promise.all):
+        const [ap, bp] = await Promise.all([taskA(), taskB()]);
+        console.log("Parallel with Promise.all ->", ap, ",", bp);
 
-        console.log("[06-main] Final main()");
+        console.log("Final main()");
     } catch (err) {
-        console.error("[06-main] Error en main():", err.message);
+        console.error("Error in main():", err.message);
     }
 }
 
-// Executem main()
+// Run main()
 main();

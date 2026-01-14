@@ -2,29 +2,36 @@
 // Reescrivim l'exercici de cadena usant async/await i try/catch.
 // Compara llegibilitat amb la versió amb .then().
 
-function transformaText(text) {
-    return new Promise((resolve) => {
-        setTimeout(() => resolve(text.split("").reverse().join("")), 350); // exemple: invertir text
+function transformText(text) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            try {
+                resolve(text.trim().toLowerCase());
+            } catch (error) {
+                reject(new Error("Type Error: can not trim type  " + typeof text));
+            }
+        }, 400);
     });
 }
 
-function afegeixInfo(text) {
+
+function addInfo(text) {
     return new Promise((resolve) => {
-        setTimeout(() => resolve(`${text} [info afegida async]`), 250);
+        setTimeout(() => {
+            resolve(text + "-- this is added info");
+        }, 400);
     });
 }
-
-async function processaText(original) {
+async function doPromises(text) {
     try {
-        const t = await transformaText(original);
-        const final = await afegeixInfo(t);
-        console.log("[07-async] resultat final (async/await):", final);
+        const t = await transformText(text);
+        const final = await addInfo(t);
+        console.log(" Resolve :" + final);
         return final;
     } catch (err) {
-        console.error("[07-async] Error:", err.message);
-        throw err;
+        console.log("Error: " + err.message);
     }
 }
 
 // Cridem la funció
-processaText("async await");
+doPromises(1);
