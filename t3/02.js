@@ -3,26 +3,24 @@
 // - la segona afegeix informació al resultat
 // Encadena-les amb `.then()` i mostra el resultat final.
 
-function transformaText(text) {
+function transformText(text) {
     return new Promise((resolve) => {
         setTimeout(() => {
-            // exemple de transformació: majúscules i trim
             resolve(text.trim().toUpperCase());
         }, 500);
     });
 }
 
-function afegeixInfo(text) {
+function addInfo(text) {
     return new Promise((resolve) => {
         setTimeout(() => {
-            resolve(`${text} -- AFEGIT: informació extra`);
+            resolve(text + "-- this is the extra info");
         }, 400);
     });
 }
 
-// Cadena amb .then()
-transformaText("  hola promeses  ")
-    .then((t) => afegeixInfo(t))
+transformText(" Hello ")
+    .then((t) => addInfo(t))
     .then((final) => {
-        console.log("[02-chain] resultat final:", final);
+        console.log(" final result: " + final);
     });
