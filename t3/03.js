@@ -22,7 +22,6 @@ function addInfo(text) {
     });
 }
 
-// Prova amb fallida i gestió d'error
 transformText(1)
     .then((t) => addInfo(t))
     .then((final) => {
