@@ -26,7 +26,25 @@ function apiController() {
         }
     }
 
-    return { getAllPosts, getPostById };
+    async function createPost({ title, body }) {
+        try {
+            const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ title, body }),
+            });
+
+            const data = await response.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    return { getAllPosts, getPostById, createPost };
 }
 
 function renderController() {
@@ -63,8 +81,8 @@ function renderController() {
     }
 
     function renderPostDetails(post) {
-        cleanContainer(); 
-        
+        cleanContainer();
+
         const container = document.getElementById("container");
 
         Object.entries(post).forEach(([key, value]) => {
@@ -74,15 +92,65 @@ function renderController() {
         });
     }
 
-    return { renderPosts, renderPostDetails };
+    function createForm(onSubmit) {
+
+        const form = document.createElement("form");
+        const titleLabel = document.createElement("label");
+        const titleInput = document.createElement("input");
+        const bodyLabel = document.createElement("label");
+        const bodyInput = document.createElement("input");
+        const submitButton = document.createElement("button");
+        
+        form.method = "post";
+        titleLabel.textContent = "Title";
+        titleInput.type = "text";
+        titleInput.name = "title";
+        bodyLabel.textContent = "Body";
+        bodyInput.type = "text";
+        bodyInput.name = "body";
+        submitButton.type = "submit";
+        submitButton.textContent = "Submit";
+
+        form.appendChild(titleLabel);
+        form.appendChild(titleInput);
+        form.appendChild(bodyLabel);
+        form.appendChild(bodyInput);
+        form.appendChild(submitButton);
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const title = titleInput.value;
+            const body = bodyInput.value;
+            onSubmit({ title, body });
+        });
+
+        container.appendChild(form);
+    }
+
+    return { renderPosts, renderPostDetails, createForm };
+}
+
+function formController() {
+    async function onSubmit(data) {
+        try {
+            const result = await apiController().createPost(data);
+            renderController().renderPostDetails(result);
+        } catch (error) {
+            console.error("Error submitting form:", error);
+        }
+    }
+    return { onSubmit };
 }
 
 async function main() {
-    const { renderPosts, renderPostDetails } = renderController();
-    const { getAllPosts, getPostById } = apiController();
+    const { renderPosts, createForm } = renderController();
+    const { getAllPosts } = apiController();
+    const { onSubmit } = formController();
+    
+    createForm(onSubmit);
 
     const posts = await getAllPosts();
-    await renderPosts(posts);
+    renderPosts(posts);
 }
 
 main();
